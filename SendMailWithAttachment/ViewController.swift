@@ -32,14 +32,13 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
             mailComposer.setSubject("This is the Subject")
             mailComposer.setMessageBody("This is the body, Yo!", isHTML: false)
             
-            // This is the attachment
-            if let filePath = NSBundle.mainBundle().pathForResource("swifts", ofType: "wav") {
-                println("File path loaded.")
-                
-                if let fileData = NSData(contentsOfFile: filePath) {
-                    println("File data loaded.")
-                    mailComposer.addAttachmentData(fileData, mimeType: "audio/wav", fileName: "swifts")
-                }
+            //Attach the Image
+            if let fileData = NSData(contentsOfFile: getAttachmentPath()){
+                NSLog("Attachment loaded.")
+                mailComposer.addAttachmentData(fileData, mimeType: "image/png", fileName: getAttachmentPath().lastPathComponent)
+            }
+            else{
+                NSLog("Attachment not found.")
             }
             
             self.presentViewController(mailComposer, animated: true, completion: nil)
@@ -48,7 +47,32 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
     }
     
     func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        switch result.value{
+        case MFMailComposeResultCancelled.value:
+            NSLog("Cancelled")
+            break
+        case MFMailComposeResultSaved.value:
+            NSLog("Saved")
+            break
+        case MFMailComposeResultSent.value:
+            NSLog("Sent")
+            break
+        case MFMailComposeResultFailed.value:
+            NSLog("Failed")
+            break
+        default:
+            NSLog("Status Unknown")
+            break
+        }
+
         self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    func getAttachmentPath() -> String{
+        let attachmentFileName = "Owl.png"
+        let attachmentPath = NSTemporaryDirectory().stringByAppendingPathComponent(attachmentFileName)
+        
+        return attachmentPath
     }
 }
 
